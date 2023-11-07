@@ -49,9 +49,6 @@
     <ClCompile Include="BMPImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="complex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FFT.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

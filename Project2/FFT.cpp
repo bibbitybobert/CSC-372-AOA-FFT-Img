@@ -105,3 +105,32 @@ void FFT::fftCalculate(vector<complex <double>> a, vector<complex <double>>& y, 
     }
 }
 
+void FFT::rotate_array(vector<vector<complex<double>>>& a) {
+    vector<vector<complex<double>>> rotated = a;
+    for (int i = 0; i < a.size(); i++) {
+        for (int j = 0; j < a[i].size(); j++) {
+            rotated[j][i] = a[i][j];
+        }
+    }
+    a = rotated;
+}
+
+
+
+void FFT::fft_2D(vector<vector<complex<double>>> a, vector<vector<complex<double>>>& y, direction dir) {    
+    vector<vector<complex<double>>> inter_array = y;
+    vector<vector<complex<double>>> out_array;
+    //do 1d FFt on each row
+    for (int i = 0; i < a.size(); i++) {
+        FFT::fft(a[i], inter_array[i], dir);
+    }
+    //rotate matrix 90 degrees
+    FFT::rotate_array(inter_array);
+
+    //do 1d fft on each row
+    for (int i = 0; i < inter_array.size(); i++) {
+        FFT:fft(inter_array[i], y[i], dir);
+    }
+    FFT::rotate_array(y);
+}
+

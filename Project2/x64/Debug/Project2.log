@@ -1,0 +1,4 @@
+﻿  FFTImage.cpp
+C:\dev\gitlab\csc372\aoap2-fft-image-prog\Project2\FFTImage.cpp(158,57): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\dev\gitlab\csc372\aoap2-fft-image-prog\Project2\FFTImage.cpp(159,43): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Project2.vcxproj -> C:\dev\gitlab\csc372\aoap2-fft-image-prog\x64\Debug\Project2.exe

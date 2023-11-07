@@ -79,7 +79,7 @@ values from the complex number. It has minor bounds checking where magnitudes
 over 255 are clamped to 255. If unnormalized complex arrays are sent in,
 the resulting chars can all be 255.
 */
-vector<unsigned char> convertToUnsignedChar(complex1D v, int n)
+vector<unsigned char> convertToUnsignedChar(complex1D v)
 {
     vector<unsigned char> newV(v.size());
 
@@ -97,7 +97,80 @@ vector<unsigned char> convertToUnsignedChar(complex1D v, int n)
     return newV;
 }
 
+ifstream openInFile(string file_name) {
+    ifstream inFile;
+    inFile.open(file_name, ios::in | ios::binary);
+    if (!inFile) {
+        cout << "Error opening input file: " << file_name;
+        cout << "quitting program\n";
+        exit(1);
+    }
+    return inFile;
+}
 
+ofstream openOutFile(string file_name) {
+    ofstream outFile;
+    outFile.open(file_name, ios::out | ios::binary);
+    if (!outFile) {
+        cout << "Error opening output file: " << file_name;
+        cout << "quitting program\n";
+        exit(1);
+    }
+    return outFile;
+}
+
+vector<unsigned char> loadImage(string fileName, unsigned int& width, unsigned int& height) {
+    vector<unsigned char> outVec;
+    string image_type;
+    ifstream in_file;
+
+    image_type = fileName.substr(fileName.size() - 3, 3);
+    in_file = openInFile(fileName);
+
+    if (image_type == "png") {
+        outVec = loadPNG(fileName, width, height);
+    }
+    else if (image_type == "bmp") {
+        outVec = loadBMP(fileName, width, height);
+    }
+
+    return outVec;
+}
+
+void saveImage(string fileName, unsigned int width, unsigned int height, vector<unsigned char> image) {
+    string image_type;
+    ofstream out_file;
+
+    image_type = fileName.substr(fileName.size() - 3, 3);
+    out_file = openOutFile(fileName);
+    
+    if (image_type == "png") {
+        savePNG(fileName, width, height, image);
+    }
+    else if (image_type == "bmp") {
+        saveBMP(fileName, width, height, image);
+    }
+}
+
+void applyBands(complex2D& image, int band_size) {
+    complex<double> zero = complex<double>(0);
+
+    int start_loc = (image.size() / 2) - (band_size / 2); //from index
+    int end_loc = image.size() - start_loc; //to index (exclusive)
+
+    vector<complex<double>> temp;
+    temp.resize(image.size(), zero);
+    for (int i = 0; i < image.size(); i++) {
+        if (i >= start_loc && i < end_loc) { //convert to all black rows
+            image[i] = temp;
+        }
+        else {
+            for (int j = start_loc; j < end_loc; j++) {
+                image[i][j] = zero;
+            }
+        }
+    }
+}
 
 
 
@@ -105,25 +178,51 @@ int main(int argc, char* argv[])
 {
 
     vector<unsigned char> origImage;
-    unsigned int width;
-    unsigned int height;
+    vector<unsigned char> outImage;
+    vector<unsigned char> interImage;
+    unsigned int width = 0;
+    unsigned int height = 0;
+    
 
     //example aliasing use
     complex1D data;
     complex1D result(8); //make it size 8
+    complex1D interData;
+
     complex2D data2D;
-    complex2D result2D = complex2D(data.size(), complex1D(data.size()));
+    complex2D result2D; 
   
     
-    //example FFT calls
-    origImage = {1, 2, 3, 4, 5, 6, 7, 8};
+    //load image
+    //origImage = {1, 2, 3, 4, 5, 6, 7, 8};
+    origImage = loadImage(argv[1], width, height);
+
     data = convertToComplex(origImage);
+    result.resize(data.size());
+    
+
+    data2D = makeComplex2D(data, width, height);
+    result2D = complex2D(data2D.size(), complex1D(data2D.size()));
+
     // Do forward FFT
-    FFT::fft(data, result, FFT::FORWARD);
+    FFT::fft_2D(data2D, result2D, FFT::FORWARD);
+
+    //apply bands 
+    applyBands(result2D, stoi(argv[4]));
+    interData = makeComplex1D(result2D);
+    interImage = convertToUnsignedChar(interData);
+    saveImage(argv[2], width, height, interImage);
+
 
     // do inverse FFT
-    FFT::fft(result, data, FFT::INVERSE);
+    FFT::fft_2D(result2D, data2D, FFT::INVERSE);
+
+    data = makeComplex1D(data2D);
+    outImage = convertToUnsignedChar(data);
+
+    saveImage(argv[3], width, height, outImage);
 
 
     return 0;
 }
+

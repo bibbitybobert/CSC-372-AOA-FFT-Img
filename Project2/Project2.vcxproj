@@ -141,7 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BMPImage.cpp" />
-    <ClCompile Include="complex.cpp" />
     <ClCompile Include="FFT.cpp" />
     <ClCompile Include="FFTImage.cpp" />
     <ClCompile Include="lodepng.cpp" />
