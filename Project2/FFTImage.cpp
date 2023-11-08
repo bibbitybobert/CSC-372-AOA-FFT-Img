@@ -172,7 +172,22 @@ void applyBands(complex2D& image, int band_size) {
     }
 }
 
+vector<unsigned char> normalize(complex1D image) {
+    double max = 0.0;
+    vector<unsigned char> normalizedImage(image.size());
+    for (int i = 1; i < image.size(); i++) {
+        double mag = sqrt(image[i].real() * image[i].real() + image[i].imag() * image[i].imag());
+        if (mag > max)
+            max = mag;
+    }
 
+    for (int i = 0; i < image.size(); i++) {
+        double mag = sqrt(image[i].real() * image[i].real() + image[i].imag() * image[i].imag());
+        unsigned char normalizedVal = (mag / max) * 255;
+        normalizedImage[i] = normalizedVal;
+    }
+    return normalizedImage;
+}
 
 int main(int argc, char* argv[])
 {
@@ -210,7 +225,8 @@ int main(int argc, char* argv[])
     //apply bands 
     applyBands(result2D, stoi(argv[4]));
     interData = makeComplex1D(result2D);
-    interImage = convertToUnsignedChar(interData);
+    interImage = normalize(interData);
+    
     saveImage(argv[2], width, height, interImage);
 
 
